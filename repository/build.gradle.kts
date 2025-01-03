@@ -1,13 +1,10 @@
 plugins {
-    kotlin("jvm") version "1.9.25"
-    kotlin("plugin.spring") version "1.9.25"
-    id("org.springframework.boot") version "3.4.1"
-    id("io.spring.dependency-management") version "1.1.7"
+    kotlin("jvm")
+    kotlin("plugin.spring")
+    id("org.springframework.boot")
+    id("io.spring.dependency-management")
     kotlin("plugin.jpa") version "1.9.25"
 }
-
-group = "vn.edu.rmit"
-version = "0.0.1-SNAPSHOT"
 
 java {
     toolchain {
@@ -15,11 +12,8 @@ java {
     }
 }
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
+    implementation(project(":model"))
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     runtimeOnly("org.postgresql:postgresql")

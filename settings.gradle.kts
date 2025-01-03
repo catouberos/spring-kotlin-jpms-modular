@@ -1,7 +1,7 @@
+rootProject.name = "untitled1"
+
 plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
 }
 
-include("application")
-include("repository")
-include("model")
+include("application", "model", "repository", "service", "dto", "controller")
