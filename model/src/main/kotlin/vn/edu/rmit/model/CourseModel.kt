@@ -15,6 +15,4 @@ class CourseModel(
     var id: Long = 0,
     @Column(nullable = false)
     var name: String,
-) {
-    companion object {}
-}
+)

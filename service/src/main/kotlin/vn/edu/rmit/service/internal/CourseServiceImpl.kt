@@ -1,20 +1,22 @@
 package vn.edu.rmit.service.internal
 
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.CachePut
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
-import vn.edu.rmit.dto.CourseCreateDto
-import vn.edu.rmit.dto.CourseMinimalDto
-import vn.edu.rmit.dto.CourseResponseDto
-import vn.edu.rmit.dto.CourseUpdateDto
-import vn.edu.rmit.dto.internal.CourseInternalDto
-import vn.edu.rmit.dto.internal.CourseInternalNullableDto
-import vn.edu.rmit.model.CourseModel
+import vn.edu.rmit.dto.course.CourseCreateDto
+import vn.edu.rmit.dto.course.CourseMinimalDto
+import vn.edu.rmit.dto.course.CourseResponseDto
+import vn.edu.rmit.dto.course.CourseUpdateDto
+import vn.edu.rmit.dto.course.internal.CourseInternalDto
+import vn.edu.rmit.dto.course.internal.CourseInternalNullableDto
 import vn.edu.rmit.repository.CourseRepository
 import vn.edu.rmit.service.CourseExternalService
 
 @Service
-internal class CourseServiceImpl(
+class CourseServiceImpl(
     private val repository: CourseRepository,
 ) : CourseExternalService,
     CourseInternalService {
@@ -50,18 +52,21 @@ internal class CourseServiceImpl(
     }
 
     // EXTERNAL implementations
+    @Cacheable("course", key = "#dto.id")
     override fun get(dto: CourseMinimalDto): CourseResponseDto = find(dto.id)
 
+    @Cacheable("courses")
     override fun getPageable(pageable: Pageable): Page<CourseResponseDto> = findAll(pageable)
 
     override fun create(dto: CourseCreateDto): CourseResponseDto {
-        if (!exists(CourseInternalNullableDto(name = dto.name))) {
+        if (exists(CourseInternalNullableDto(name = dto.name))) {
             error("Course with name ${dto.name} already exists")
         }
 
         return save(dto.toInternalDto())
     }
 
+    @CachePut("course", key = "#dto.id")
     override fun update(dto: CourseUpdateDto): CourseResponseDto {
         if (!exists(CourseInternalNullableDto(id = dto.id))) {
             error("Course with ID ${dto.id} doesn't exists")
@@ -78,27 +83,6 @@ internal class CourseServiceImpl(
         )
     }
 
+    @CacheEvict("course", key = "#dto.id")
     override fun delete(dto: CourseMinimalDto): Boolean = delete(dto.id)
 }
-
-fun CourseInternalDto.toModel() =
-    CourseModel(
-        name = name,
-    )
-
-fun CourseModel.toResponseDto() =
-    CourseResponseDto(
-        id = id,
-        name = name,
-    )
-
-fun CourseCreateDto.toInternalDto() =
-    CourseInternalDto(
-        name = name,
-    )
-
-fun CourseResponseDto.toInternalDto() =
-    CourseInternalDto(
-        id = id,
-        name = name,
-    )
